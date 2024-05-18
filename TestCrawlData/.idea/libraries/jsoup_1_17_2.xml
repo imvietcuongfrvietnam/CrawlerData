@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="jsoup-1.17.2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../../jsoup-1.17.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../guava-33.1.0-jre.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../../failsafe-3.3.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
