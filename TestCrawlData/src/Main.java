@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 
 public class Main {
     public static void main(String[] args) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter("D:\\2023.2\\it3100\\CrawlerData\\TestCrawlData\\src/data.csv"))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter("D:\\2023.2\\it3100\\CrawlerData\\TestCrawlData\\src\\data.csv"))) {
             pw.println("URL, Web Source, Article type, Article summary, Article title, Content, Creation date, Hashtag, Author, Category");
 
             for (int i = 1; i <= 426; i++) {
@@ -21,8 +21,8 @@ public class Main {
                     try {
                         Document docURL = Jsoup.connect(linkHref).get();
                         Element articleTitle = docURL.selectFirst(".is-title.post-title");
-                        String articleType = "News Article"; // Assuming all articles are news articles
-                        String articleSummary = ""; // No summary extraction here
+                        String articleType = "News Article"; // Giả định tất cả bài viết là bài báo tin tức
+                        String articleSummary = ""; // Không có trích xuất tóm tắt ở đây
                         String articleTitleText = articleTitle != null ? articleTitle.text() : "";
                         StringBuilder contentBuilder = new StringBuilder();
                         Element contentElement = docURL.selectFirst(".post-content.cf.entry-content.content-spacious");
@@ -32,13 +32,21 @@ public class Main {
                                 contentBuilder.append(p.text()).append(" ");
                             }
                         }
-                        String content = contentBuilder.toString();
+                        String content = contentBuilder.toString().trim();
                         Elements postDates = docURL.select(".post-date");
                         String postDateText = postDates.isEmpty() ? "" : postDates.first().text();
                         Elements categories = docURL.select("[rel=category]");
                         String categoryText = categories.isEmpty() ? "" : categories.text();
                         Element author = docURL.selectFirst("[rel=author]");
                         String authorText = author != null ? author.text() : "";
+
+                        // Escape double quotes by doubling them
+                        articleTitleText = articleTitleText.replace("\"", "\"\"");
+                        articleSummary = articleSummary.replace("\"", "\"\"");
+                        content = content.replace("\"", "\"\"");
+                        postDateText = postDateText.replace("\"", "\"\"");
+                        authorText = authorText.replace("\"", "\"\"");
+                        categoryText = categoryText.replace("\"", "\"\"");
 
                         pw.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"\",\"%s\",\"%s\"\n",
                                 linkHref, "https://blockonomi.com/", articleType, articleSummary, articleTitleText, content, postDateText, authorText, categoryText);

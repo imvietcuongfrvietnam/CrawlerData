@@ -13,11 +13,11 @@ public class Cryptonews {
     public static void main(String[] args) {
         // Mở file CSV để ghi dữ liệu
         try (PrintWriter pw = new PrintWriter(new FileWriter("D:\\2023.2\\it3100\\CrawlerData\\TestCrawlData\\src\\data.csv"))) {
-            pw.println("URL, Web Source, Article type, Article summary, Article title, Content, Creation date, Hashtag, Author, Category");
+            pw.println("URL,Web Source,Article type,Article summary,Article title,Content,Creation date,Hashtag,Author,Category");
 
             for (int i = 1; i <= 1916; i++) {
                 String urlSource = "https://cryptonews.com/";
-                String urlPerPage = "https://cryptonews.com/news/blockchain-news/page/" + i + "/";
+                String urlPerPage = "https://cryptonews.com/news/page/" + i + "/";
 
                 try {
                     // Kết nối đến trang cụ thể
@@ -38,48 +38,37 @@ public class Cryptonews {
                                 continue;
                             }
 
-                            System.out.println("Tiêu đề bài viết: " + articleTitleElement.text());
+                            String title = articleTitleElement.text();
 
-                            Element articleSummaryElement = docURL.select(".wp-caption-text p").first();
+                            Element articleSummaryElement = docURL.selectFirst("div.article-single__content.category_contents_details > p");
+                            String summary = (articleSummaryElement != null) ? articleSummaryElement.text() : "";
                             if (articleSummaryElement == null) {
                                 System.err.println("Không tìm thấy tóm tắt tại URL " + linkHref);
                             } else {
-                                System.out.println("Tóm tắt: " + articleSummaryElement.text());
+                                System.out.println("Tóm tắt: " + summary);
                             }
 
                             // Lấy tất cả các phần tử <p> trong class "article-single__content category_contents_details"
                             Elements paragraphElements = docURL.select(".article-single__content.category_contents_details p");
-
                             if (paragraphElements.isEmpty()) {
                                 System.err.println("Không tìm thấy nội dung tại URL " + linkHref);
                                 continue;
                             }
 
                             StringBuilder contentBuilder = new StringBuilder();
-
                             for (Element paragraphElement : paragraphElements) {
                                 contentBuilder.append(paragraphElement.text()).append("\n");
                             }
                             String content = contentBuilder.toString().trim(); // Lấy nội dung cuối cùng và loại bỏ khoảng trắng thừa
 
-                            System.out.println("Nội dung: " + content);
-
                             Element dateElement = docURL.selectFirst("div.fs-14.date-section time");
-                            if (dateElement == null) {
-                                System.err.println("Không tìm thấy thẻ time tại URL " + linkHref);
-                            } else {
-                                System.out.println("Ngày tạo: " + dateElement.text());
-                            }
+                            String date = dateElement != null ? dateElement.text() : "";
 
                             Element authorElement = docURL.selectFirst("div.author-title a");
-                            if (authorElement == null) {
-                                System.err.println("Không tìm thấy tác giả tại URL " + linkHref);
-                            } else {
-                                System.out.println("Tác giả: " + authorElement.text());
-                            }
+                            String author = authorElement != null ? authorElement.text() : "";
 
                             Element breadcrumbsElement = docURL.selectFirst(".col-12");
-                            String category = new String();
+                            String category = "";
                             if (breadcrumbsElement != null) {
                                 Elements breadcrumbLinks = breadcrumbsElement.select("a");
                                 if (breadcrumbLinks.size() > 1) {
@@ -88,22 +77,24 @@ public class Cryptonews {
 
                                     // Tạo một StringBuilder để xây dựng nội dung thể loại
                                     StringBuilder categoryBuilder = new StringBuilder();
-
-                                    // Duyệt qua các phần tử còn lại để lấy nội dung thể loại
                                     for (Element breadcrumbLink : breadcrumbLinks) {
-                                        String categories = breadcrumbLink.text();
-                                        categoryBuilder.append(categories).append(" "); // Thêm khoảng trắng giữa các thể loại
+                                        categoryBuilder.append(breadcrumbLink.text()).append(", ");
                                     }
-                                    category = categoryBuilder.toString().trim();
-                                    System.out.println("Thể loại: " + category);
+                                    // Xóa dấu phẩy thừa ở cuối chuỗi
+                                    if (!categoryBuilder.isEmpty()) {
+                                        categoryBuilder.setLength(categoryBuilder.length() - 2);
+                                    }
+                                    category = categoryBuilder.toString();
                                 }
                             }
 
-
-                            String title = articleTitleElement.text();
-                            String summary = articleSummaryElement != null ? articleSummaryElement.text() : "";
-                            String date = dateElement != null ? dateElement.text() : "";
-                            String author = authorElement != null ? authorElement.text() : "";
+                            // double escape đe khong bi tao them cot
+                            title = title.replace("\"", "\"\"");
+                            summary = summary.replace("\"", "\"\"");
+                            content = content.replace("\"", "\"\"");
+                            date = date.replace("\"", "\"\"");
+                            author = author.replace("\"", "\"\"");
+                            category = category.replace("\"", "\"\"");
 
                             // Ghi dữ liệu vào file CSV
                             pw.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"\",\"%s\",\"%s\"\n",

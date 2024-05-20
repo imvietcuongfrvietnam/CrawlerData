@@ -6,6 +6,9 @@ import org.jsoup.select.Elements;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class BlockchainMagazine {
     public static String articleType = "News Article";
@@ -42,7 +45,7 @@ public class BlockchainMagazine {
                             continue;
                         }
 
-                        Element dateElement = docURL.selectFirst("div.stm_post_view__info i.stm-clock6");
+                        Element dateElement = docURL.selectFirst("div.stm_post_view__info .date");
                         if (dateElement == null) {
                             System.err.println("Không tìm thấy ngày tạo tại URL " + linkHref);
                             continue;
@@ -55,22 +58,27 @@ public class BlockchainMagazine {
                         }
 
                         Elements categoryElements = docURL.select(".stm_post_view__categories a");
-                        String categories = "";
+                        StringBuilder categories = new StringBuilder();
                         for (Element categoryElement : categoryElements) {
-                            categories += categoryElement.text() + ", ";
+                            categories.append(categoryElement.text()).append(", ");
                         }
-// Xóa dấu phẩy thừa ở cuối chuỗi
-                        categories = categories.replaceAll(", $", "");
-
+                        // Xóa dấu phẩy thừa ở cuối chuỗi
+                        if (!categories.isEmpty()) {
+                            categories.setLength(categories.length() - 2);
+                        }
 
                         String title = articleTitleElement.text();
                         String summary = articleSummaryElement.text();
                         String content = articleContentElement.text();
-                        String date = dateElement.text().split(" by")[0].trim();
+                        String date = parseDate(dateElement.text().split(" by")[0].trim());
                         String author = authorElement.text();
-
+                        title = title.replace("\"", "\"\"");
+                        summary = summary.replace("\"", "\"\"");
+                        content = content.replace("\"", "\"\"");
+                        date = date.replace("\"", "\"\"");
+                        author = author.replace("\"", "\"\"");
                         printWriter.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"\",\"%s\",\"%s\"\n",
-                                linkHref, urlSource, articleType, summary, title, content, date, author, categories);
+                                linkHref, urlSource, articleType, summary, title, content, date, author, categories.toString());
                     } catch (IOException e) {
                         System.err.println("Không thể kết nối đến URL: " + linkHref);
                         e.printStackTrace();
@@ -83,5 +91,15 @@ public class BlockchainMagazine {
             e.printStackTrace();
         }
     }
-}
 
+    private static String parseDate(String dateStr) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
+            LocalDate date = LocalDate.parse(dateStr, formatter);
+            return date.toString();
+        } catch (DateTimeParseException e) {
+            System.err.println("Lỗi khi phân tích ngày: " + dateStr);
+            return "";
+        }
+    }
+}
