@@ -11,7 +11,7 @@ public class BlockchainMagazine {
     public static String articleType = "News Article";
 
     public static void main(String[] args) {
-        try (PrintWriter printWriter = new PrintWriter(new FileWriter("src/data.csv", true))) {
+        try (PrintWriter printWriter = new PrintWriter(new FileWriter("D:\\2023.2\\it3100\\CrawlerData\\TestCrawlData\\src/data.csv", true))) {
             for (int i = 1; i <= 218; i++) {
                 String urlSource = "https://shorturl.at/KOHRD";
                 String urlPerPage = "https://blockchainmagazine.net/blockchain-news/page/" + i + "/?_gl=1%2A1f4tsgq%2A_ga%2AMTA0OTg0NTQxNy4xNzExNjkxMDIy%2A_ga_5SYDREVZTY%2AMTcxNTk1NzY0OC4yLjEuMTcxNTk1Nzc4Ny4zMi4wLjA";
@@ -54,21 +54,23 @@ public class BlockchainMagazine {
                             continue;
                         }
 
-                        Element categoryElement = docURL.select(".sbc.mtc.wtc_h.mbc_h.no_deco").first();
-                        if (categoryElement == null) {
-                            System.err.println("Không tìm thấy thể loại tại URL " + linkHref);
-                            continue;
+                        Elements categoryElements = docURL.select(".stm_post_view__categories a");
+                        String categories = "";
+                        for (Element categoryElement : categoryElements) {
+                            categories += categoryElement.text() + ", ";
                         }
+// Xóa dấu phẩy thừa ở cuối chuỗi
+                        categories = categories.replaceAll(", $", "");
+
 
                         String title = articleTitleElement.text();
                         String summary = articleSummaryElement.text();
                         String content = articleContentElement.text();
                         String date = dateElement.text().split(" by")[0].trim();
                         String author = authorElement.text();
-                        String category = categoryElement.text();
 
                         printWriter.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"\",\"%s\",\"%s\"\n",
-                                linkHref, urlSource, articleType, summary, title, content, date, author, category);
+                                linkHref, urlSource, articleType, summary, title, content, date, author, categories);
                     } catch (IOException e) {
                         System.err.println("Không thể kết nối đến URL: " + linkHref);
                         e.printStackTrace();

@@ -37,16 +37,13 @@ public class Cryptonews {
                                 System.err.println("Không tìm thấy tiêu đề tại URL " + linkHref);
                                 continue;
                             }
-                            else{
-                                System.out.println("Tiêu đề bài viết: " + articleTitleElement.text());
-                            }
+
+                            System.out.println("Tiêu đề bài viết: " + articleTitleElement.text());
 
                             Element articleSummaryElement = docURL.select(".wp-caption-text p").first();
                             if (articleSummaryElement == null) {
                                 System.err.println("Không tìm thấy tóm tắt tại URL " + linkHref);
-                                continue;
-                            }
-                            else{
+                            } else {
                                 System.out.println("Tóm tắt: " + articleSummaryElement.text());
                             }
 
@@ -57,6 +54,7 @@ public class Cryptonews {
                                 System.err.println("Không tìm thấy nội dung tại URL " + linkHref);
                                 continue;
                             }
+
                             StringBuilder contentBuilder = new StringBuilder();
 
                             for (Element paragraphElement : paragraphElements) {
@@ -64,41 +62,34 @@ public class Cryptonews {
                             }
                             String content = contentBuilder.toString().trim(); // Lấy nội dung cuối cùng và loại bỏ khoảng trắng thừa
 
-                            System.out.println("Nội dung: " + contentBuilder.toString().trim());
+                            System.out.println("Nội dung: " + content);
 
                             Element dateElement = docURL.selectFirst("div.fs-14.date-section time");
                             if (dateElement == null) {
                                 System.err.println("Không tìm thấy thẻ time tại URL " + linkHref);
-                                continue;
-                            }
-                            else{
+                            } else {
                                 System.out.println("Ngày tạo: " + dateElement.text());
                             }
 
                             Element authorElement = docURL.selectFirst("div.author-title a");
                             if (authorElement == null) {
                                 System.err.println("Không tìm thấy tác giả tại URL " + linkHref);
-                                continue;
-                            }
-                            else{
+                            } else {
                                 System.out.println("Tác giả: " + authorElement.text());
                             }
 
                             Element categoryElement = docURL.selectFirst("div.news-one-category a");
                             if (categoryElement == null) {
                                 System.err.println("Không tìm thấy thể loại tại URL " + linkHref);
-                                continue;
-                            }
-                            else{
+                            } else {
                                 System.out.println("Thể loại: " + categoryElement.text());
                             }
 
                             String title = articleTitleElement.text();
-                            String summary = articleSummaryElement.text();
-                            String date = dateElement.text();
-                            String author = authorElement.text();
-                            String category = categoryElement.text();
-                            System.out.println("Nội dung: " + contentBuilder.toString().trim());
+                            String summary = articleSummaryElement != null ? articleSummaryElement.text() : "";
+                            String date = dateElement != null ? dateElement.text() : "";
+                            String author = authorElement != null ? authorElement.text() : "";
+                            String category = categoryElement != null ? categoryElement.text() : "";
 
                             // Ghi dữ liệu vào file CSV
                             pw.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"\",\"%s\",\"%s\"\n",

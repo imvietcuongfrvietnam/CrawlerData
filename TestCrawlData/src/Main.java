@@ -9,10 +9,10 @@ import java.io.PrintWriter;
 
 public class Main {
     public static void main(String[] args) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter("src/data.csv"))) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter("D:\\2023.2\\it3100\\CrawlerData\\TestCrawlData\\src/data.csv"))) {
             pw.println("URL, Web Source, Article type, Article summary, Article title, Content, Creation date, Hashtag, Author, Category");
 
-            for (int i = 1; i <= 395; i++) {
+            for (int i = 1; i <= 426; i++) {
                 String urlPerPage = "https://blockonomi.com/all/page/" + i + "/";
                 Document doc = Jsoup.connect(urlPerPage).get();
                 Elements urlPerPageLinks = doc.select("article.l-post.grid-post.grid-base-post div.media a[href]");
