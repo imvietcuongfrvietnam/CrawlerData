@@ -78,18 +78,32 @@ public class Cryptonews {
                                 System.out.println("Tác giả: " + authorElement.text());
                             }
 
-                            Element categoryElement = docURL.selectFirst("div.news-one-category a");
-                            if (categoryElement == null) {
-                                System.err.println("Không tìm thấy thể loại tại URL " + linkHref);
-                            } else {
-                                System.out.println("Thể loại: " + categoryElement.text());
+                            Element breadcrumbsElement = docURL.selectFirst(".col-12");
+                            String category = new String();
+                            if (breadcrumbsElement != null) {
+                                Elements breadcrumbLinks = breadcrumbsElement.select("a");
+                                if (breadcrumbLinks.size() > 1) {
+                                    // Loại bỏ phần tử cuối cùng (là tên bài viết)
+                                    breadcrumbLinks.remove(breadcrumbLinks.size() - 1);
+
+                                    // Tạo một StringBuilder để xây dựng nội dung thể loại
+                                    StringBuilder categoryBuilder = new StringBuilder();
+
+                                    // Duyệt qua các phần tử còn lại để lấy nội dung thể loại
+                                    for (Element breadcrumbLink : breadcrumbLinks) {
+                                        String categories = breadcrumbLink.text();
+                                        categoryBuilder.append(categories).append(" "); // Thêm khoảng trắng giữa các thể loại
+                                    }
+                                    category = categoryBuilder.toString().trim();
+                                    System.out.println("Thể loại: " + category);
+                                }
                             }
+
 
                             String title = articleTitleElement.text();
                             String summary = articleSummaryElement != null ? articleSummaryElement.text() : "";
                             String date = dateElement != null ? dateElement.text() : "";
                             String author = authorElement != null ? authorElement.text() : "";
-                            String category = categoryElement != null ? categoryElement.text() : "";
 
                             // Ghi dữ liệu vào file CSV
                             pw.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"\",\"%s\",\"%s\"\n",
